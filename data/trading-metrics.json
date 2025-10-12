@@ -1,0 +1,17 @@
+{
+    "tradingVolume": {
+        "value": "$10",
+        "change": -96.5,
+        "trend": "down"
+    },
+    "totalCapital": {
+        "value": "$18,924,581",
+        "change": 8.7,
+        "trend": "up"
+    },
+    "commission": {
+        "value": "$84,573",
+        "change": -2.3,
+        "trend": "down"
+    }
+}

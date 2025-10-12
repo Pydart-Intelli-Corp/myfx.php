@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1001,
+    "name": "John Smith",
+    "balance": 45230.5,
+    "equity": 47120.3,
+    "status": "active",
+    "last_trade": "2025-10-12 09:45:00"
+  },
+  {
+    "id": 1002,
+    "name": "Sarah Johnson",
+    "balance": 78940.25,
+    "equity": 82150.75,
+    "status": "active",
+    "last_trade": "2025-10-12 10:12:00"
+  },
+  {
+    "id": 1003,
+    "name": "Michael Brown",
+    "balance": 23780.0,
+    "equity": 24890.5,
+    "status": "active",
+    "last_trade": "2025-10-12 08:30:00"
+  },
+  {
+    "id": 1004,
+    "name": "Emma Davis",
+    "balance": 156420.75,
+    "equity": 159870.25,
+    "status": "active",
+    "last_trade": "2025-10-12 11:05:00"
+  },
+  {
+    "id": 1005,
+    "name": "Robert Wilson",
+    "balance": 89560.0,
+    "equity": 87230.5,
+    "status": "margin_call",
+    "last_trade": "2025-10-12 07:15:00"
+  }
+]

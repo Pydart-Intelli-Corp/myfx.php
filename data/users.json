@@ -1,0 +1,11 @@
+{
+    "admin": {
+        "username": "admin",
+        "password_hash": "$2y$12$IqjudC5rMofhmmmdEMvvN.WHveP2zWc0Qsarw7mjbORsorUid7nmC",
+        "role": "administrator",
+        "created": "2025-10-12 18:59:45",
+        "last_login": "2025-10-12 19:27:24",
+        "login_attempts": 0,
+        "locked_until": null
+    }
+}

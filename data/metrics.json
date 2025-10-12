@@ -1,0 +1,17 @@
+{
+  "trading_volume": {
+    "value": 2500000,
+    "percentage": 12.5,
+    "trend": "up"
+  },
+  "total_capital": {
+    "value": 50000000,
+    "percentage": 8.2,
+    "trend": "up"
+  },
+  "commission": {
+    "value": 125000,
+    "percentage": 15.3,
+    "trend": "up"
+  }
+}
