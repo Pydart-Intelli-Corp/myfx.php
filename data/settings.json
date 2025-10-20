@@ -1,0 +1,10 @@
+{
+    "app_name": "MyFX Trading Dashboard",
+    "session_timeout": 3600,
+    "max_login_attempts": 5,
+    "lockout_duration": 900,
+    "enable_audit_log": true,
+    "theme_color": "#3b82f6",
+    "dashboard_refresh_interval": 30,
+    "last_updated": "2025-10-20 09:08:11"
+}

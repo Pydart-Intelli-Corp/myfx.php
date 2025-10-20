@@ -16,17 +16,37 @@ if (session_status() == PHP_SESSION_NONE) {
 // Site Configuration
 define('SITE_NAME', 'Myforexcart Trading Portal');
 define('SITE_VERSION', '1.0.0');
-define('BASE_URL', 'http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']));
+define('BASE_URL', isset($_SERVER['HTTP_HOST']) ? 'http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']) : 'http://localhost');
+
+// Development mode (set to false in production)
+define('DEVELOPMENT', true);
+
+// Database Configuration - External MySQL Server
+// Production database server configuration
+define('DB_HOST', '72.61.144.187');          // External MySQL host
+define('DB_PORT', '3306');                    // MySQL port (usually 3306)
+define('DB_NAME', 'myfx');                    // Database name
+define('DB_USER', 'myfx_user');               // MySQL username
+define('DB_PASS', 'Access@myfx123');          // MySQL password
+define('DB_CHARSET', 'utf8mb4');
+
+// Alternative: For local development with XAMPP, use these settings:
+// define('DB_HOST', 'localhost');
+// define('DB_NAME', 'myfx_trading');
+// define('DB_USER', 'root');                    // XAMPP default MySQL username
+// define('DB_PASS', 'Access@404');              // XAMPP MySQL password
+// define('DB_CHARSET', 'utf8mb4');
 
 // Authentication Configuration
 define('ADMIN_USERNAME', 'admin');
 define('ADMIN_PASSWORD', 'Access@myfx');
-define('SESSION_TIMEOUT', 3600); // 1 hour in seconds
+define('SESSION_TIMEOUT', 14400); // 4 hours in seconds
 
 // File Paths
 define('DATA_DIR', __DIR__ . '/data/');
 define('INCLUDES_DIR', __DIR__ . '/includes/');
 define('ASSETS_DIR', __DIR__ . '/assets/');
+define('MIGRATIONS_DIR', __DIR__ . '/database/migrations/');
 
 // Data Files
 define('METRICS_FILE', DATA_DIR . 'metrics.json');

@@ -1,42 +1,101 @@
 [
-  {
-    "id": 1001,
-    "name": "John Smith",
-    "balance": 45230.5,
-    "equity": 47120.3,
-    "status": "active",
-    "last_trade": "2025-10-12 09:45:00"
-  },
-  {
-    "id": 1002,
-    "name": "Sarah Johnson",
-    "balance": 78940.25,
-    "equity": 82150.75,
-    "status": "active",
-    "last_trade": "2025-10-12 10:12:00"
-  },
-  {
-    "id": 1003,
-    "name": "Michael Brown",
-    "balance": 23780.0,
-    "equity": 24890.5,
-    "status": "active",
-    "last_trade": "2025-10-12 08:30:00"
-  },
-  {
-    "id": 1004,
-    "name": "Emma Davis",
-    "balance": 156420.75,
-    "equity": 159870.25,
-    "status": "active",
-    "last_trade": "2025-10-12 11:05:00"
-  },
-  {
-    "id": 1005,
-    "name": "Robert Wilson",
-    "balance": 89560.0,
-    "equity": 87230.5,
-    "status": "margin_call",
-    "last_trade": "2025-10-12 07:15:00"
-  }
+    {
+        "id": 100001,
+        "username": "manu",
+        "balance": 70.5,
+        "equity": 15680.25,
+        "margin": 2340,
+        "status": "margin_call",
+        "last_activity": "2025-10-20 10:22:00"
+    },
+    {
+        "id": 100002,
+        "username": "sarah_fx",
+        "balance": 28750.8,
+        "equity": 29120.15,
+        "margin": 4560.5,
+        "status": "Active",
+        "last_activity": "5 mins ago"
+    },
+    {
+        "id": 100003,
+        "username": "mike_trading",
+        "balance": 8960.3,
+        "equity": 8760.45,
+        "margin": 1200,
+        "status": "Active",
+        "last_activity": "1 hour ago"
+    },
+    {
+        "id": 100004,
+        "username": "emma_gold",
+        "balance": 45230.75,
+        "equity": 46100.2,
+        "margin": 8900.3,
+        "status": "Active",
+        "last_activity": "3 mins ago"
+    },
+    {
+        "id": 100005,
+        "username": "alex_pro",
+        "balance": 12850.6,
+        "equity": 12650.9,
+        "margin": 2100.75,
+        "status": "Inactive",
+        "last_activity": "2 days ago"
+    },
+    {
+        "id": 100006,
+        "username": "lisa_trader",
+        "balance": 67890.25,
+        "equity": 68450.8,
+        "margin": 12300.5,
+        "status": "Active",
+        "last_activity": "8 mins ago"
+    },
+    {
+        "id": 100007,
+        "username": "david_fx",
+        "balance": 23400.9,
+        "equity": 23180.65,
+        "margin": 3450.25,
+        "status": "Active",
+        "last_activity": "15 mins ago"
+    },
+    {
+        "id": 100008,
+        "username": "anna_scalp",
+        "balance": 9875.4,
+        "equity": 9645.2,
+        "margin": 1850.75,
+        "status": "Suspended",
+        "last_activity": "1 week ago"
+    },
+    {
+        "id": 100009,
+        "username": "robert_swing",
+        "balance": 54320.15,
+        "equity": 55100.4,
+        "margin": 9800.6,
+        "status": "Active",
+        "last_activity": "12 mins ago"
+    },
+    {
+        "id": 100010,
+        "username": "kelly_day",
+        "balance": 18760.85,
+        "equity": 18920.3,
+        "margin": 2980.9,
+        "status": "Active",
+        "last_activity": "6 mins ago"
+    },
+    {
+        "id": 100011,
+        "username": "superadmin",
+        "balance": 33,
+        "equity": 332,
+        "margin": 33,
+        "status": "active",
+        "last_activity": "2025-10-20 10:30:47"
+    }
 ]

@@ -1,17 +1,62 @@
 {
-    "tradingVolume": {
-        "value": "$10",
-        "change": -96.5,
+    "book_a_deposit": {
+        "value": 30,
+        "change": -99.98,
         "trend": "down"
     },
-    "totalCapital": {
-        "value": "$18,924,581",
-        "change": 8.7,
+    "book_a_withdraw": {
+        "value": 60,
+        "change": -99.9,
+        "trend": "down"
+    },
+    "book_a_trade_volume": {
+        "value": 70,
+        "change": -99.99,
+        "trend": "down"
+    },
+    "book_a_profit_loss": {
+        "value": 50,
+        "change": 25,
         "trend": "up"
     },
-    "commission": {
-        "value": "$84,573",
-        "change": -2.3,
+    "book_b_deposit": {
+        "value": 160,
+        "change": 100,
+        "trend": "up"
+    },
+    "book_b_withdraw": {
+        "value": 110,
+        "change": -99.66,
         "trend": "down"
+    },
+    "book_b_trade_volume": {
+        "value": 77,
+        "change": -35.83,
+        "trend": "down"
+    },
+    "book_b_profit_loss": {
+        "value": 100,
+        "change": 11.11,
+        "trend": "up"
+    },
+    "external_deposit": {
+        "value": 10,
+        "change": -54.55,
+        "trend": "down"
+    },
+    "external_withdraw": {
+        "value": 98000,
+        "change": -12.8,
+        "trend": "down"
+    },
+    "external_supply": {
+        "value": 20,
+        "change": -100,
+        "trend": "down"
+    },
+    "external_profit_loss": {
+        "value": 185000,
+        "change": 18.7,
+        "trend": "up"
     }
 }

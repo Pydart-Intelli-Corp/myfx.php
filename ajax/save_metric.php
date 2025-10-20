@@ -1,4 +1,5 @@
 <?php
+header('Content-Type: application/json');
 require_once '../config.php';
 require_once '../includes/auth.php';
 
@@ -6,6 +7,14 @@ require_once '../includes/auth.php';
 if (!AuthManager::is_authenticated()) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+    exit();
+}
+
+// Only superadmin can update metrics
+$currentUser = AuthManager::get_user();
+if (!$currentUser || ($currentUser['role'] ?? '') !== 'superadmin') {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Forbidden: insufficient permissions']);
     exit();
 }
 
@@ -18,64 +27,103 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $key = $_POST['key'] ?? '';
 $value = $_POST['value'] ?? '';
 
+// Debug logging
+error_log("save_metric.php called with key: $key, value: $value");
+
+// We'll compute change and trend server-side based on previous stored value
+$change = null;
+$trend = null;
+
 if (empty($key) || empty($value)) {
+    error_log("save_metric.php: Missing parameters - key: $key, value: $value");
     echo json_encode(['success' => false, 'message' => 'Missing parameters']);
     exit();
 }
 
-// Load current metrics or use defaults
-$default_metrics = [
-    'tradingVolume' => ['value' => '$2,847,392', 'change' => 12.4, 'trend' => 'up'],
-    'totalCapital' => ['value' => '$18,924,581', 'change' => 8.7, 'trend' => 'up'],
-    'commission' => ['value' => '$84,573', 'change' => -2.3, 'trend' => 'down']
-];
-
-$metrics_file = '../data/trading-metrics.json';
-if (file_exists($metrics_file)) {
-    $stored_metrics = json_decode(file_get_contents($metrics_file), true);
-    $metrics = $stored_metrics ?: $default_metrics;
-} else {
-    $metrics = $default_metrics;
-}
+// Get current user for audit trail
+$user = AuthManager::get_user();
+$updatedBy = $user ? $user['username'] : null;
 
 // Validate metric key
-if (!isset($metrics[$key])) {
+$validKeys = [
+    'book_a_deposit', 'book_a_withdraw', 'book_a_trade_volume', 'book_a_profit_loss',
+    'book_b_deposit', 'book_b_withdraw', 'book_b_trade_volume', 'book_b_profit_loss',
+    'external_deposit', 'external_withdraw', 'external_supply', 'external_profit_loss'
+];
+if (!in_array($key, $validKeys)) {
     echo json_encode(['success' => false, 'message' => 'Invalid metric key']);
     exit();
 }
 
-// Calculate change percentage
-$previousValue = floatval(str_replace(['$', ','], '', $metrics[$key]['value']));
-$newValue = floatval(str_replace(['$', ','], '', $value));
+// Update the metric using DataManager
+$metrics = DataManager::get_metrics();
 
-if ($previousValue === 0) {
-    $change = 0;
+// sanitize incoming value (allow numbers, decimal, negative)
+$raw = (string)$value;
+$newValue = 0.0;
+if (is_numeric($raw)) {
+    $newValue = (float)$raw;
 } else {
-    $change = (($newValue - $previousValue) / $previousValue) * 100;
+    // remove any currency symbols and commas
+    $newValue = (float)preg_replace('/[^0-9.\-]/', '', $raw);
 }
 
-$trend = $change >= 0 ? 'up' : 'down';
-
-// Update the metric
-$metrics[$key] = [
-    'value' => $value,
-    'change' => round($change, 1),
-    'trend' => $trend
-];
-
-// Ensure data directory exists
-if (!file_exists('../data')) {
-    mkdir('../data', 0755, true);
+$previousValue = 0.0;
+if (isset($metrics[$key]) && isset($metrics[$key]['value'])) {
+    $previousValue = (float)$metrics[$key]['value'];
 }
 
-// Save metrics
-if (file_put_contents($metrics_file, json_encode($metrics, JSON_PRETTY_PRINT))) {
-    echo json_encode([
-        'success' => true, 
-        'message' => 'Metric updated successfully',
-        'data' => $metrics[$key]
-    ]);
+// Compute percentage change and trend
+if ($previousValue == 0.0) {
+    if ($newValue == 0.0) {
+        $change = 0.0;
+        $trend = 'neutral';
+    } else {
+        // from 0 to something: define as 100% increase for display
+        $change = 100.0;
+        $trend = $newValue > 0 ? 'up' : 'down';
+    }
 } else {
+    $change = (($newValue - $previousValue) / $previousValue) * 100.0;
+    if ($change > 0) $trend = 'up';
+    elseif ($change < 0) $trend = 'down';
+    else $trend = 'neutral';
+}
+
+// Round change to 2 decimal places for storage
+$change = round($change, 2);
+
+// Save numeric value (no formatting)
+$success = DataManager::save_metric($key, $newValue, $change, $trend, $updatedBy);
+
+error_log("save_metric.php: Save operation result: " . ($success ? 'SUCCESS' : 'FAILED'));
+
+if ($success) {
+    // Get the updated metrics to return the specific one
+    $metrics = DataManager::get_metrics();
+    $updatedMetric = $metrics[$key] ?? null;
+    
+    error_log("save_metric.php: Updated metric: " . json_encode($updatedMetric));
+    
+    if ($updatedMetric) {
+        // Prepare a nicely formatted response
+        $formattedValue = $updatedMetric['value'];
+        $formattedChange = isset($updatedMetric['change']) ? round((float)$updatedMetric['change'], 2) : null;
+        echo json_encode([
+            'success' => true,
+            'message' => 'Metric updated successfully',
+            'data' => [
+                'value' => $formattedValue,
+                'change' => $formattedChange,
+                'trend' => $updatedMetric['trend'] ?? 'neutral'
+            ]
+        ]);
+    } else {
+        error_log("save_metric.php: Failed to retrieve updated metric for key: $key");
+        echo json_encode(['success' => false, 'message' => 'Failed to retrieve updated metric']);
+    }
+} else {
+    error_log("save_metric.php: Failed to save metric for key: $key");
     echo json_encode(['success' => false, 'message' => 'Failed to save metric']);
 }
 ?>

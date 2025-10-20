@@ -13,14 +13,33 @@ if (!defined('CONFIG_LOADED')) {
 
 class AuthManager {
     
+    private static function getUsersData() {
+        $users_file = __DIR__ . '/../data/users.json';
+        if (file_exists($users_file)) {
+            return json_decode(file_get_contents($users_file), true) ?: [];
+        }
+        return [];
+    }
+    
+    private static function saveUsersData($users) {
+        $users_file = __DIR__ . '/../data/users.json';
+        return file_put_contents($users_file, json_encode($users, JSON_PRETTY_PRINT));
+    }
+    
     public static function login($username, $password) {
-        $users = self::load_users();
+        $users = self::getUsersData();
+        $user = null;
         
-        if (!isset($users[$username])) {
-            return ['success' => false, 'message' => 'Invalid username or password'];
+        foreach ($users as $u) {
+            if ($u['username'] === $username) {
+                $user = $u;
+                break;
+            }
         }
         
-        $user = $users[$username];
+        if (!$user || !$user['is_active']) {
+            return ['success' => false, 'message' => 'Invalid username or password'];
+        }
         
         // Check if account is locked
         if ($user['locked_until'] && strtotime($user['locked_until']) > time()) {
@@ -29,13 +48,17 @@ class AuthManager {
         }
         
         // Verify password
-        if (password_verify($password, $user['password_hash'])) {
-            // Reset login attempts on successful login
-            $users[$username]['login_attempts'] = 0;
-            $users[$username]['locked_until'] = null;
-            $users[$username]['last_login'] = date('Y-m-d H:i:s');
-            
-            self::save_users($users);
+        if (password_verify($password, $user['password'])) {
+            // Update user data - reset login attempts and update last login
+            foreach ($users as &$u) {
+                if ($u['username'] === $username) {
+                    $u['last_login'] = date('Y-m-d H:i:s');
+                    $u['login_attempts'] = 0;
+                    $u['locked_until'] = null;
+                    break;
+                }
+            }
+            self::saveUsersData($users);
             
             // Set session variables
             $_SESSION['authenticated'] = true;
@@ -46,14 +69,18 @@ class AuthManager {
             return ['success' => true, 'message' => 'Login successful'];
         } else {
             // Increment login attempts
-            $users[$username]['login_attempts']++;
-            
-            // Lock account if too many attempts
-            if ($users[$username]['login_attempts'] >= MAX_LOGIN_ATTEMPTS) {
-                $users[$username]['locked_until'] = date('Y-m-d H:i:s', time() + LOGIN_LOCKOUT_TIME);
+            foreach ($users as &$u) {
+                if ($u['username'] === $username) {
+                    $u['login_attempts'] = ($u['login_attempts'] ?? 0) + 1;
+                    
+                    // Lock account if too many attempts
+                    if ($u['login_attempts'] >= MAX_LOGIN_ATTEMPTS) {
+                        $u['locked_until'] = date('Y-m-d H:i:s', time() + LOGIN_LOCKOUT_TIME);
+                    }
+                    break;
+                }
             }
-            
-            self::save_users($users);
+            self::saveUsersData($users);
             
             return ['success' => false, 'message' => 'Invalid username or password'];
         }
@@ -82,106 +109,96 @@ class AuthManager {
         if (self::is_authenticated()) {
             return [
                 'username' => $_SESSION['username'],
-                'role' => $_SESSION['role'] ?? 'user',
+                'role' => $_SESSION['role'] ?? 'administrator',
                 'login_time' => $_SESSION['login_time']
             ];
         }
         return null;
     }
-    
-    private static function load_users() {
-        if (file_exists(USERS_FILE)) {
-            $json = file_get_contents(USERS_FILE);
-            return json_decode($json, true) ?: [];
-        }
-        return [];
-    }
-    
-    private static function save_users($users) {
-        file_put_contents(USERS_FILE, json_encode($users, JSON_PRETTY_PRINT));
-    }
 }
 
-// Data Manager Class
+// Data Manager Class (File-based system)
 class DataManager {
     
     public static function get_metrics() {
-        if (file_exists(METRICS_FILE)) {
-            $json = file_get_contents(METRICS_FILE);
-            return json_decode($json, true) ?: [];
+        $metrics_file = __DIR__ . '/../data/trading-metrics.json';
+        if (file_exists($metrics_file)) {
+            return json_decode(file_get_contents($metrics_file), true) ?: [];
         }
         return [];
     }
     
-    public static function save_metric($key, $value, $percentage = null, $trend = null) {
+    public static function save_metric($key, $value, $change = null, $trend = null, $updatedBy = null) {
         $metrics = self::get_metrics();
         
-        if (!isset($metrics[$key])) {
-            $metrics[$key] = [];
+        if ($change === null || $trend === null) {
+            // Calculate change and trend if not provided
+            if (isset($metrics[$key])) {
+                $previousValue = floatval(str_replace(['$', ','], '', $metrics[$key]['value']));
+                $newValue = floatval(str_replace(['$', ','], '', $value));
+                
+                if ($previousValue === 0) {
+                    $change = 0;
+                } else {
+                    $change = round((($newValue - $previousValue) / $previousValue) * 100, 2);
+                }
+                
+                if ($change > 0) $trend = 'up';
+                elseif ($change < 0) $trend = 'down';
+                else $trend = 'neutral';
+            } else {
+                $change = 0;
+                $trend = 'up';
+            }
         }
         
-        $metrics[$key]['value'] = floatval($value);
-        if ($percentage !== null) {
-            $metrics[$key]['percentage'] = floatval($percentage);
-        }
-        if ($trend !== null) {
-            $metrics[$key]['trend'] = $trend;
-        }
+        $metrics[$key] = [
+            'value' => $value,
+            'change' => $change,
+            'trend' => $trend
+        ];
         
-        return file_put_contents(METRICS_FILE, json_encode($metrics, JSON_PRETTY_PRINT)) !== false;
+        $metrics_file = __DIR__ . '/../data/trading-metrics.json';
+        return file_put_contents($metrics_file, json_encode($metrics, JSON_PRETTY_PRINT));
     }
     
     public static function get_accounts() {
-        if (file_exists(ACCOUNTS_FILE)) {
-            $json = file_get_contents(ACCOUNTS_FILE);
-            return json_decode($json, true) ?: [];
+        $accounts_file = __DIR__ . '/../data/accounts.json';
+        if (file_exists($accounts_file)) {
+            return json_decode(file_get_contents($accounts_file), true) ?: [];
         }
         return [];
     }
     
     public static function save_accounts($accounts) {
-        return file_put_contents(ACCOUNTS_FILE, json_encode($accounts, JSON_PRETTY_PRINT)) !== false;
+        $accounts_file = __DIR__ . '/../data/accounts.json';
+        return file_put_contents($accounts_file, json_encode($accounts, JSON_PRETTY_PRINT));
     }
     
     public static function add_account($account_data) {
         $accounts = self::get_accounts();
-        
-        // Generate new ID
-        $max_id = 0;
-        foreach ($accounts as $account) {
-            if ($account['id'] > $max_id) {
-                $max_id = $account['id'];
-            }
-        }
-        
-        $account_data['id'] = $max_id + 1;
-        $account_data['last_trade'] = date('Y-m-d H:i:s');
-        
         $accounts[] = $account_data;
-        
         return self::save_accounts($accounts);
     }
     
     public static function update_account($id, $account_data) {
         $accounts = self::get_accounts();
-        
         foreach ($accounts as &$account) {
             if ($account['id'] == $id) {
-                $account = array_merge($account, $account_data);
-                return self::save_accounts($accounts);
+                foreach ($account_data as $key => $value) {
+                    $account[$key] = $value;
+                }
+                break;
             }
         }
-        
-        return false;
+        return self::save_accounts($accounts);
     }
     
     public static function delete_account($id) {
         $accounts = self::get_accounts();
-        
         $accounts = array_filter($accounts, function($account) use ($id) {
             return $account['id'] != $id;
         });
-        
         return self::save_accounts(array_values($accounts));
     }
 }

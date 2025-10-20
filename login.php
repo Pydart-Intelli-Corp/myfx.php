@@ -22,7 +22,13 @@ if ($_POST) {
         
         if ($result['success']) {
             $login_success = $result['message'];
-            header('refresh:2;url=dashboard.php');
+            // Redirect based on user role
+            $user = AuthManager::get_user();
+            if ($user && $user['role'] === 'superadmin') {
+                header('refresh:2;url=super-admin-dashboard.php');
+            } else {
+                header('refresh:2;url=dashboard.php');
+            }
         } else {
             $login_error = 'Invalid credentials';
         }
@@ -31,7 +37,12 @@ if ($_POST) {
 
 // Redirect if already authenticated
 if (AuthManager::is_authenticated()) {
-    header('Location: dashboard.php');
+    $user = AuthManager::get_user();
+    if ($user && $user['role'] === 'superadmin') {
+        header('Location: super-admin-dashboard.php');
+    } else {
+        header('Location: dashboard.php');
+    }
     exit();
 }
 ?>
