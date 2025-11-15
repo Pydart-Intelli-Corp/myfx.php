@@ -1,15 +1,62 @@
 RewriteEngine On
 
+# MyForexCart Trading Portal - Production Security Configuration
+RewriteEngine On
+
 # Security - Prevent access to sensitive files
 <Files "config.php">
-    Order allow,deny
-    Deny from all
+    Require all denied
+</Files>
+
+<Files "config.production.php">
+    Require all denied
 </Files>
 
 <Files "*.json">
-    Order allow,deny
-    Deny from all
+    Require all denied
 </Files>
+
+# Protect database and testing files from web access
+<Files "*.sql">
+    Require all denied
+</Files>
+
+<Files "test_connection.php">
+    Require all denied
+</Files>
+
+<Files "diagnose_connection.php">
+    Require all denied
+</Files>
+
+<Files "run_migration.php">
+    Require all denied
+</Files>
+
+<Files "verify_setup.php">
+    Require all denied
+</Files>
+
+<Files "diagnostic.php">
+    Require all denied
+</Files>
+
+<Files "prepare_deployment.php">
+    Require all denied
+</Files>
+
+# Protect markdown documentation files
+<Files "*.md">
+    Require all denied
+</Files>
+
+# Protect log files
+<Files "*.log">
+    Require all denied
+</Files>
+
+# Set default document
+DirectoryIndex index.php
 
 # Cache static assets
 <IfModule mod_expires.c>

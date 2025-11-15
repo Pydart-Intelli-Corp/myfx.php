@@ -14,33 +14,53 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 // Site Configuration
-define('SITE_NAME', 'Myforexcart Trading Portal');
+define('SITE_NAME', 'MyForexCart Trading Portal');
 define('SITE_VERSION', '1.0.0');
-define('BASE_URL', isset($_SERVER['HTTP_HOST']) ? 'http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']) : 'http://localhost');
+define('BASE_URL', isset($_SERVER['HTTP_HOST']) ? 'https://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']) : 'https://blueviolet-caterpillar-353032.hostingersite.com');
 
 // Development mode (set to false in production)
-define('DEVELOPMENT', true);
+define('DEVELOPMENT', false);
+
+// Production Security Settings
+if (!DEVELOPMENT) {
+    // Disable error display in production
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+    ini_set('error_log', __DIR__ . '/data/php_errors.log');
+    
+    // Session Security
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.cookie_secure', 0); // Set to 1 when HTTPS is enabled
+    ini_set('session.use_strict_mode', 1);
+    ini_set('session.cookie_samesite', 'Strict');
+    
+    // Hide PHP version
+    header_remove('X-Powered-By');
+}
 
 // Database Configuration - External MySQL Server
 // Production database server configuration
-define('DB_HOST', '72.61.144.187');          // External MySQL host
+define('DB_HOST', '45.130.228.117');          // External MySQL host (IP address)
 define('DB_PORT', '3306');                    // MySQL port (usually 3306)
-define('DB_NAME', 'myfx');                    // Database name
-define('DB_USER', 'myfx_user');               // MySQL username
-define('DB_PASS', 'Access@myfx123');          // MySQL password
+define('DB_NAME', 'u509963569_lp_myfx');                    // Database name
+define('DB_USER', 'u509963569_lp_myfx_user');               // MySQL username
+define('DB_PASS', 'Asd@8750123');          // MySQL password
 define('DB_CHARSET', 'utf8mb4');
 
 // Alternative: For local development with XAMPP, use these settings:
 // define('DB_HOST', 'localhost');
 // define('DB_NAME', 'myfx_trading');
 // define('DB_USER', 'root');                    // XAMPP default MySQL username
-// define('DB_PASS', 'Access@404');              // XAMPP MySQL password
+// define('DB_PASS', '');                        // XAMPP MySQL password (empty by default)
 // define('DB_CHARSET', 'utf8mb4');
+
+// Note: Your current IP (111.92.83.235) needs to be whitelisted by your hosting provider
+// Contact them to add this IP to the MySQL user's allowed connections
 
 // Authentication Configuration
 define('ADMIN_USERNAME', 'admin');
-define('ADMIN_PASSWORD', 'Access@myfx');
-define('SESSION_TIMEOUT', 14400); // 4 hours in seconds
+define('ADMIN_PASSWORD', 'Access@myfx2025!'); // Updated for production
+define('SESSION_TIMEOUT', 3600); // 1 hour for production security
 
 // File Paths
 define('DATA_DIR', __DIR__ . '/data/');
@@ -55,8 +75,12 @@ define('USERS_FILE', DATA_DIR . 'users.json');
 
 // Security Settings
 define('CSRF_TOKEN_LENGTH', 32);
-define('MAX_LOGIN_ATTEMPTS', 5);
-define('LOGIN_LOCKOUT_TIME', 900); // 15 minutes
+define('MAX_LOGIN_ATTEMPTS', 3); // Reduced for production
+define('LOGIN_LOCKOUT_TIME', 1800); // 30 minutes lockout
+
+// Production Rate Limiting
+define('RATE_LIMIT_REQUESTS', 60); // Max requests per hour
+define('RATE_LIMIT_WINDOW', 3600); // 1 hour window
 
 // Default Trading Metrics
 $default_metrics = [

@@ -8,7 +8,7 @@ if (AuthManager::is_authenticated()) {
     exit();
 }
 
-// Redirect to login page
-header('Location: login.php');
+// Redirect to homescreen page
+header('Location: homescreen.php');
 exit();
 ?>
